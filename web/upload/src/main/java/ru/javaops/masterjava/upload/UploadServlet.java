@@ -39,7 +39,11 @@ public class UploadServlet extends HttpServlet {
                 throw new IllegalStateException("Upload file have not been selected");
             }
             try (InputStream is = filePart.getInputStream()) {
-                List<User> users = userProcessor.process(is);
+                int chunkSize = Integer.valueOf(req.getParameter("size"));
+                if (chunkSize < 1){
+                    throw new IllegalArgumentException("Chunksize must be more then zero");
+                }
+                List<User> users = userProcessor.process(is, Integer.valueOf(req.getParameter("size")));
                 webContext.setVariable("users", users);
                 engine.process("result", webContext, resp.getWriter());
             }
