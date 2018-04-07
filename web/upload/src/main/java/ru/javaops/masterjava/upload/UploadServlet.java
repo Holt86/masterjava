@@ -52,4 +52,9 @@ public class UploadServlet extends HttpServlet {
             engine.process("exception", webContext, resp.getWriter());
         }
     }
+
+    @Override
+    public void destroy() {
+        userProcessor.getService().shutdown();
+    }
 }
