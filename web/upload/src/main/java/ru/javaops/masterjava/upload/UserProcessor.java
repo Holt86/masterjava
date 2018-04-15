@@ -4,10 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import ru.javaops.masterjava.persist.DBIProvider;
+import ru.javaops.masterjava.persist.dao.CityDao;
 import ru.javaops.masterjava.persist.dao.UserDao;
+import ru.javaops.masterjava.persist.model.City;
 import ru.javaops.masterjava.persist.model.User;
 import ru.javaops.masterjava.persist.model.UserFlag;
+import ru.javaops.masterjava.xml.schema.CityType;
 import ru.javaops.masterjava.xml.schema.ObjectFactory;
+import ru.javaops.masterjava.xml.schema.Payload.Cities;
 import ru.javaops.masterjava.xml.util.JaxbParser;
 import ru.javaops.masterjava.xml.util.StaxStreamProcessor;
 
@@ -30,6 +34,7 @@ public class UserProcessor {
 
     private static final JaxbParser jaxbParser = new JaxbParser(ObjectFactory.class);
     private static UserDao userDao = DBIProvider.getDao(UserDao.class);
+    private static CityDao cityDao = DBIProvider.getDao(CityDao.class);
 
     private ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_THREADS);
 
@@ -50,21 +55,39 @@ public class UserProcessor {
     public List<FailedEmails> process(final InputStream is, int chunkSize) throws XMLStreamException, JAXBException {
         log.info("Start processing with chunkSize=" + chunkSize);
 
-        Map<String, Future<List<String>>> chunkFutures = new LinkedHashMap<>();  // ordered map (emailRange -> chunk future)
-
-        int id = userDao.getSeqAndSkip(chunkSize);
-        List<User> chunk = new ArrayList<>(chunkSize);
         val processor = new StaxStreamProcessor(is);
         val unmarshaller = jaxbParser.createUnmarshaller();
 
+        log.info("Start processing uploading city");
+        List<City> cities = new ArrayList<>();
+
+        while (processor.doUntil(XMLEvent.START_ELEMENT, "Cities")) {
+            Cities xmlCities = unmarshaller.unmarshal(processor.getReader(), Cities.class);
+            int cityId = cityDao.getSeqAndSkip(xmlCities.getCity().size());
+            for (CityType cityType : xmlCities.getCity()) {
+                cities.add(new City(cityId++, cityType.getId(), cityType.getValue()));
+            }
+            break;
+        }
+
+            cityDao.insertBatch(cities, cities.size());
+
+        Map<String, Future<List<String>>> chunkFutures = new LinkedHashMap<>();  // ordered map (emailRange -> chunk future)
+
+        int userId = userDao.getSeqAndSkip(chunkSize);
+        List<User> chunk = new ArrayList<>(chunkSize);
+
+
         while (processor.doUntil(XMLEvent.START_ELEMENT, "User")) {
-            ru.javaops.masterjava.xml.schema.User xmlUser = unmarshaller.unmarshal(processor.getReader(), ru.javaops.masterjava.xml.schema.User.class);
-            final User user = new User(id++, xmlUser.getValue(), xmlUser.getEmail(), UserFlag.valueOf(xmlUser.getFlag().value()));
+            String city = processor.getAttribute("city");
+            ru.javaops.masterjava.xml.schema.User xmlUser = unmarshaller.unmarshal(
+                processor.getReader(), ru.javaops.masterjava.xml.schema.User.class);
+            final User user = new User(userId++, xmlUser.getValue(), xmlUser.getEmail(), UserFlag.valueOf(xmlUser.getFlag().value()), city);
             chunk.add(user);
             if (chunk.size() == chunkSize) {
                 addChunkFutures(chunkFutures, chunk);
                 chunk = new ArrayList<>(chunkSize);
-                id = userDao.getSeqAndSkip(chunkSize);
+                userId = userDao.getSeqAndSkip(chunkSize);
             }
         }
 
