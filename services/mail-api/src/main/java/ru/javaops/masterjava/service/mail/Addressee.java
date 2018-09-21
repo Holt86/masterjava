@@ -1,17 +1,15 @@
 package ru.javaops.masterjava.service.mail;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 /**
  * gkislin
  * 15.11.2016
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class Addressee {
-    private String email;
-    private String name;
+    private @NonNull String email;
+    private @NonNull String name;
 }
