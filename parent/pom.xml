@@ -62,6 +62,18 @@
             </plugin>
         </plugins>
 
+        <resources>
+            <resource>
+                <directory>${masterjava.config}</directory>
+                <includes>
+                    <include>wsdl/mailService.wsdl</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+
         <testResources>
             <testResource>
                 <directory>${masterjava.config}</directory>
