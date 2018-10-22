@@ -126,7 +126,7 @@
   </binding>
   <service name="MailServiceImplService">
     <port name="MailServiceImplPort" binding="tns:MailServiceImplPortBinding">
-      <soap:address location="http://localhost:8081/mail/mailService"/>
+      <soap:address location="http://localhost:8080/mail/mailService"/>
     </port>
   </service>
 </definitions>

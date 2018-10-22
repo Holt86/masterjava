@@ -1,0 +1,25 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:object="${groupResult}">
+    <section>
+        <p th:text="'Number success: '+*{success}"></p>
+        <p th:if="*{failedCause != null}" th:text="'Root cause: '+*{failedCause}"></p>
+        <table th:if="*{failed != null and !failed.isEmpty()}" border="1" cellpadding="8" cellspacing="0">
+            <caption>Failed Emails</caption>
+            <thead>
+            <tr>
+                <th>Email</th>
+                <th>Result</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!--/*@thymesVar id="users" type="java.util.List<ru.javaops.masterjava.persist.model.User>"*/-->
+            <tr th:each="fail: *{failed}">
+                <td th:text="${fail.email}"></td>
+                <td th:text="${fail.result}"></td>
+                <br>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</div>
+</html>

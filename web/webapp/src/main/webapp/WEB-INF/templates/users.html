@@ -3,7 +3,10 @@
     <meta charset="UTF-8">
     <title>Users</title>
 </head>
+<script type="text/javascript" src="webjars/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="resources/js/function.js" defer></script>
 <body>
+<section>
 <table border="1" cellpadding="8" cellspacing="0">
     <thead>
     <tr>
@@ -11,6 +14,7 @@
         <th>Full Name</th>
         <th>Email</th>
         <th>Flag</th>
+        <th/>
     </tr>
     </thead>
     <tbody>
@@ -20,8 +24,21 @@
         <td th:text="${user.fullName}"></td>
         <td th:utext="${user.email}"></td>
         <td th:text="${user.flag}"></td>
+        <td><input type="checkbox" th:value="${user.fullName +'<'+ user.email}"> </td>
     </tr>
     </tbody>
 </table>
+<hr/>
+<p>
+  <input id="subject" placeholder="subject" size="30"/>
+</p>
+<p>
+  <textarea id="body" placeholder="mail body" cols="75" rows="5"><br/></textarea>
+</p>
+<p>
+  <button type="button" onclick="send()">Send</button>
+</p>
+<div id="result"></div>
+</section>
 </body>
 </html>
