@@ -1,17 +1,21 @@
 package ru.javaops.masterjava.webapp;
 
-import lombok.extern.slf4j.Slf4j;
-import ru.javaops.masterjava.service.mail.GroupResult;
-import ru.javaops.masterjava.service.mail.MailWSClient;
-
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import javax.servlet.http.Part;
+import lombok.extern.slf4j.Slf4j;
+import ru.javaops.masterjava.service.mail.GroupResult;
+import ru.javaops.masterjava.service.mail.MailWSClient;
 
 @WebServlet("/send")
+@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 10)
 @Slf4j
 public class SendServlet extends HttpServlet {
     @Override
@@ -24,6 +28,9 @@ public class SendServlet extends HttpServlet {
             String users = req.getParameter("users");
             String subject = req.getParameter("subject");
             String body = req.getParameter("body");
+            List<Part> files = req.getParts().stream()
+                .filter(e -> e.getSubmittedFileName() != null).collect(
+                    Collectors.toList());
             GroupResult groupResult = MailWSClient.sendBulk(MailWSClient.split(users), subject, body);
             result = groupResult.toString();
             log.info("Processing finished with result: {}", result);
