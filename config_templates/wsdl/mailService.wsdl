@@ -22,6 +22,7 @@
                     <xs:element name="cc" type="tns:addressee" minOccurs="0" maxOccurs="unbounded"/>
                     <xs:element name="subject" type="xs:string" minOccurs="0"/>
                     <xs:element name="body" type="xs:string" minOccurs="1"/>
+                    <xs:element name="attachment" type="tns:attachment" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="sendToGroupResponse">
@@ -35,6 +36,7 @@
                     <xs:element name="to" type="tns:addressee" maxOccurs="unbounded"/>
                     <xs:element name="subject" type="xs:string" minOccurs="0"/>
                     <xs:element name="body" type="xs:string" minOccurs="1"/>
+                    <xs:element name="attachment" type="tns:attachment" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="sendBulkResponse">
@@ -61,6 +63,14 @@
                 <xs:simpleContent>
                     <xs:extension base="xs:string">
                         <xs:attribute type="xs:string" name="email"/>
+                    </xs:extension>
+                </xs:simpleContent>
+            </xs:complexType>
+
+            <xs:complexType name="attachment">
+                <xs:simpleContent>
+                    <xs:extension base="xs:base64Binary">
+                        <xs:attribute name="name" type="xs:string"/>
                     </xs:extension>
                 </xs:simpleContent>
             </xs:complexType>

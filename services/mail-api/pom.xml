@@ -19,9 +19,11 @@
         <resources>
             <resource>
                 <directory>${masterjava.config}</directory>
+                <filtering>true</filtering>
                 <includes>
                     <include>wsdl/mailService.wsdl</include>
                     <include>wsdl/common.xsd</include>
+                    <include>app.conf</include>
                 </includes>
             </resource>
         </resources>
