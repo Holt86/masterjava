@@ -1,5 +1,7 @@
 package ru.javaops.masterjava.service.mail;
 
+
+import com.sun.xml.ws.developer.StreamingAttachment;
 import java.util.List;
 import javax.activation.DataHandler;
 import javax.xml.ws.soap.MTOM;
@@ -11,7 +13,8 @@ import java.util.Set;
 @WebService(endpointInterface = "ru.javaops.masterjava.service.mail.MailService", targetNamespace = "http://mail.javaops.ru/"
 //          , wsdlLocation = "WEB-INF/wsdl/mailService.wsdl"
 )
-@MTOM(threshold = 3072)
+@MTOM
+@StreamingAttachment(parseEagerly = true, memoryThreshold = 1024)
 public class MailServiceImpl implements MailService {
 
   public String sendToGroup(Set<Addressee> to, Set<Addressee> cc, String subject, String body,

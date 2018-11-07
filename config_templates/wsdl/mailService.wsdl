@@ -4,6 +4,7 @@
              xmlns:tns="http://mail.javaops.ru/"
              xmlns:xs="http://www.w3.org/2001/XMLSchema"
              xmlns:common="http://common.javaops.ru/"
+             xmlns:xmime="http://www.w3.org/2005/05/xmlmime"
              xmlns="http://schemas.xmlsoap.org/wsdl/"
              targetNamespace="http://mail.javaops.ru/"
              name="MailServiceImplService">
@@ -69,7 +70,7 @@
 
             <xs:complexType name="attachment">
                 <xs:simpleContent>
-                    <xs:extension base="xs:base64Binary">
+                    <xs:extension base="xs:base64Binary" xmime:expectedContentTypes="application/octet-stream">
                         <xs:attribute name="name" type="xs:string"/>
                     </xs:extension>
                 </xs:simpleContent>

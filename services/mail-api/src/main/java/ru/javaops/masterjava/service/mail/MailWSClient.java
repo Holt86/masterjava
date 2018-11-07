@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Resources;
 import java.util.List;
+import javax.xml.ws.soap.MTOMFeature;
 import lombok.extern.slf4j.Slf4j;
 import ru.javaops.web.WebStateException;
 import ru.javaops.web.WsClient;
@@ -32,7 +33,7 @@ public class MailWSClient {
     log.info(
         "Send to group to '" + to + "' cc '" + cc + "' subject '" + subject + (log.isDebugEnabled()
             ? "\nbody=" + body : "") + " with attachments size = " + (attachments != null ? attachments.size() : null));
-    String status = WS_CLIENT.getPort().sendToGroup(to, cc, subject, body, attachments);
+    String status = WS_CLIENT.getPort(new MTOMFeature()).sendToGroup(to, cc, subject, body, attachments);
     log.info("Send to group with status: " + status);
     return status;
   }
@@ -42,7 +43,7 @@ public class MailWSClient {
     log.info(
         "Send bulk to '" + to + "' subject '" + subject + (log.isDebugEnabled() ? "\nbody=" + body
             : "") + " with attachments size = " + (attachments != null ? attachments.size() : null));
-    GroupResult result = WS_CLIENT.getPort().sendBulk(to, subject, body, attachments);
+    GroupResult result = WS_CLIENT.getPort(new MTOMFeature()).sendBulk(to, subject, body, attachments);
     log.info("Sent bulk with result: " + result);
     return result;
   }

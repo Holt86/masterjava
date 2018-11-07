@@ -4,6 +4,7 @@ import javax.activation.DataHandler;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlMimeType;
 import javax.xml.bind.annotation.XmlValue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,5 +22,6 @@ public class Attachment {
   @XmlAttribute
   private String name;
   @XmlValue
+  @XmlMimeType("application/octet-stream")
   private DataHandler file;
 }

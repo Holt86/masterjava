@@ -1,6 +1,7 @@
 package ru.javaops.web;
 
 import com.typesafe.config.Config;
+import javax.xml.ws.WebServiceFeature;
 import ru.javaops.masterjava.ExceptionType;
 import ru.javaops.masterjava.config.Configs;
 
@@ -31,8 +32,8 @@ public class WsClient<T> {
     }
 
     //  Post is not thread-safe (http://stackoverflow.com/a/10601916/548473)
-    public T getPort() {
-        T port = service.getPort(serviceClass);
+    public T getPort(WebServiceFeature... webServiceFeature) {
+        T port = service.getPort(serviceClass, webServiceFeature);
         BindingProvider bp = (BindingProvider) port;
         Map<String, Object> requestContext = bp.getRequestContext();
         requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
