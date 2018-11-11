@@ -1,6 +1,7 @@
 package ru.javaops.masterjava.web;
 
 import com.typesafe.config.Config;
+import lombok.Data;
 import ru.javaops.masterjava.ExceptionType;
 import ru.javaops.masterjava.config.Configs;
 
@@ -15,23 +16,25 @@ import java.util.List;
 import java.util.Map;
 
 public class WsClient<T> {
-    private static Config HOSTS;
+    private static final Config HOSTS;
 
     private final Class<T> serviceClass;
     private final Service service;
     private String endpointAddress;
+    private String name;
 
     static {
         HOSTS = Configs.getConfig("hosts.conf", "hosts");
     }
 
-    public WsClient(URL wsdlUrl, QName qname, Class<T> serviceClass) {
+    public WsClient(URL wsdlUrl, QName qname, Class<T> serviceClass, String name) {
         this.serviceClass = serviceClass;
         this.service = Service.create(wsdlUrl, qname);
+        this.name = name;
     }
 
-    public void init(String host, String endpointAddress) {
-        this.endpointAddress = HOSTS.getString(host) + endpointAddress;
+    public void init(String endpointAddress) {
+        this.endpointAddress = HOSTS.getConfig(name).getString("endpoint") + endpointAddress;
     }
 
     //  Post is not thread-safe (http://stackoverflow.com/a/10601916/548473)
@@ -43,10 +46,10 @@ public class WsClient<T> {
         return port;
     }
 
-    public static <T> void setAuth(T port, String user, String password) {
+    public static <T> void setAuth(T port, Credentials credentials) {
         Map<String, Object> requestContext = ((BindingProvider) port).getRequestContext();
-        requestContext.put(BindingProvider.USERNAME_PROPERTY, user);
-        requestContext.put(BindingProvider.PASSWORD_PROPERTY, password);
+        requestContext.put(BindingProvider.USERNAME_PROPERTY, credentials.getLogin());
+        requestContext.put(BindingProvider.PASSWORD_PROPERTY, credentials.getPassword());
     }
 
     public static <T> void setHandler(T port, Handler handler) {
@@ -58,5 +61,18 @@ public class WsClient<T> {
 
     public static WebStateException getWebStateException(Throwable t, ExceptionType type) {
         return (t instanceof WebStateException) ? (WebStateException) t : new WebStateException(t, type);
+    }
+
+    public Credentials getCredentials() {
+        Credentials credentials = new Credentials();
+        credentials.setLogin(HOSTS.getConfig(name).getString("user"));
+        credentials.setPassword(HOSTS.getConfig(name).getString("password"));
+        return credentials;
+    }
+
+    @Data
+    public static class Credentials{
+        private String login;
+        private String password;
     }
 }

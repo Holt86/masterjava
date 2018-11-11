@@ -19,6 +19,7 @@ import java.util.Set;
 @Slf4j
 public class MailWSClient {
     private static final WsClient<MailService> WS_CLIENT;
+    private static final WsClient.Credentials CREDENTIALS;
     public static final String USER = "user";
     public static final String PASSWORD = "password";
     private static final SoapLoggingHandlers.ClientHandler LOGGING_HANDLER = new SoapLoggingHandlers.ClientHandler(Level.DEBUG);
@@ -28,11 +29,11 @@ public class MailWSClient {
     static {
         WS_CLIENT = new WsClient<>(Resources.getResource("wsdl/mailService.wsdl"),
                 new QName("http://mail.javaops.ru/", "MailServiceImplService"),
-                MailService.class);
+                MailService.class, "mail");
 
-        WS_CLIENT.init("mail", "/mail/mailService?wsdl");
+        WS_CLIENT.init("/mail/mailService?wsdl");
+        CREDENTIALS = WS_CLIENT.getCredentials();
     }
-
 
     public static String sendToGroup(final Set<Addressee> to, final Set<Addressee> cc, final String subject, final String body, List<Attachment> attachments) throws WebStateException {
         log.info("Send to group to '" + to + "' cc '" + cc + "' subject '" + subject + (log.isDebugEnabled() ? "\nbody=" + body : ""));
@@ -50,7 +51,7 @@ public class MailWSClient {
 
     private static MailService getPort() {
         MailService port = WS_CLIENT.getPort(new MTOMFeature(1024));
-        WsClient.setAuth(port, USER, PASSWORD);
+        WsClient.setAuth(port, CREDENTIALS);
         WsClient.setHandler(port, LOGGING_HANDLER);
         return port;
     }
