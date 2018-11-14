@@ -2,6 +2,7 @@ package ru.javaops.masterjava.web;
 
 import com.typesafe.config.Config;
 import lombok.Data;
+import org.slf4j.event.Level;
 import ru.javaops.masterjava.ExceptionType;
 import ru.javaops.masterjava.config.Configs;
 
@@ -21,19 +22,17 @@ public class WsClient<T> {
     private final Class<T> serviceClass;
     private final Service service;
     private String endpointAddress;
-    private String name;
 
     static {
         HOSTS = Configs.getConfig("hosts.conf", "hosts");
     }
 
-    public WsClient(URL wsdlUrl, QName qname, Class<T> serviceClass, String name) {
+    public WsClient(URL wsdlUrl, QName qname, Class<T> serviceClass) {
         this.serviceClass = serviceClass;
         this.service = Service.create(wsdlUrl, qname);
-        this.name = name;
     }
 
-    public void init(String endpointAddress) {
+    public void init(String name, String endpointAddress) {
         this.endpointAddress = HOSTS.getConfig(name).getString("endpoint") + endpointAddress;
     }
 
@@ -63,11 +62,15 @@ public class WsClient<T> {
         return (t instanceof WebStateException) ? (WebStateException) t : new WebStateException(t, type);
     }
 
-    public Credentials getCredentials() {
+    public static Credentials getCredentials(String name) {
         Credentials credentials = new Credentials();
         credentials.setLogin(HOSTS.getConfig(name).getString("user"));
         credentials.setPassword(HOSTS.getConfig(name).getString("password"));
         return credentials;
+    }
+
+    public static Level getLoggerLevel(String domain, String name){
+        return Level.valueOf(HOSTS.getConfig(domain).getConfig("debug").getString(name));
     }
 
     @Data

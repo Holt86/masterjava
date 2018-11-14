@@ -20,19 +20,18 @@ import java.util.Set;
 public class MailWSClient {
     private static final WsClient<MailService> WS_CLIENT;
     private static final WsClient.Credentials CREDENTIALS;
-    public static final String USER = "user";
-    public static final String PASSWORD = "password";
-    private static final SoapLoggingHandlers.ClientHandler LOGGING_HANDLER = new SoapLoggingHandlers.ClientHandler(Level.DEBUG);
+    private static final SoapLoggingHandlers.ClientHandler LOGGING_HANDLER;
+    public static final String MAIL_CONFIG = "mail";
 
-    public static String AUTH_HEADER = AuthUtil.encodeBasicAuthHeader(USER, PASSWORD);
 
     static {
         WS_CLIENT = new WsClient<>(Resources.getResource("wsdl/mailService.wsdl"),
                 new QName("http://mail.javaops.ru/", "MailServiceImplService"),
-                MailService.class, "mail");
+                MailService.class);
 
-        WS_CLIENT.init("/mail/mailService?wsdl");
-        CREDENTIALS = WS_CLIENT.getCredentials();
+        WS_CLIENT.init(MAIL_CONFIG, "/mail/mailService?wsdl");
+        LOGGING_HANDLER = new SoapLoggingHandlers.ClientHandler(WsClient.getLoggerLevel(MAIL_CONFIG, "client"));
+        CREDENTIALS = WsClient.getCredentials(MAIL_CONFIG);
     }
 
     public static String sendToGroup(final Set<Addressee> to, final Set<Addressee> cc, final String subject, final String body, List<Attachment> attachments) throws WebStateException {
@@ -54,6 +53,10 @@ public class MailWSClient {
         WsClient.setAuth(port, CREDENTIALS);
         WsClient.setHandler(port, LOGGING_HANDLER);
         return port;
+    }
+
+    public static String getBaseEncodeCredentials() {
+        return AuthUtil.encodeBasicAuthHeader(CREDENTIALS.getLogin(), CREDENTIALS.getPassword());
     }
 
     public static Set<Addressee> split(String addressees) {

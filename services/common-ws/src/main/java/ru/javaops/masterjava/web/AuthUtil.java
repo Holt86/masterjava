@@ -1,5 +1,6 @@
 package ru.javaops.masterjava.web;
 
+import com.sun.xml.ws.transport.Headers;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletResponse;
@@ -17,7 +18,7 @@ public class AuthUtil {
         return "Basic " + DatatypeConverter.printBase64Binary(authString.getBytes());
     }
 
-    public static int checkBasicAuth(Map<String, List<String>> headers, String basicAuthCredentials) {
+    public static int checkBasicAuth(Headers headers, String basicAuthCredentials) {
         List<String> autHeaders = headers.get(AUTHORIZATION);
         if ((autHeaders == null || autHeaders.isEmpty())) {
             log.warn("Unauthorized access");
